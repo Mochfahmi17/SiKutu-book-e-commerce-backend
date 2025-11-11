@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import { allAuthors, store } from "../services/author.service";
+import generateUniqueSlug from "../utils/genereateUniqueSlug";
+import Author from "../models/author.model";
 
 export const getAllAuthors = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -25,8 +27,10 @@ export const addAuthor = async (req: Request, res: Response, next: NextFunction)
   try {
     const { name, bio } = req.body;
 
+    const slug = await generateUniqueSlug(Author, name);
     const storeData = {
       name,
+      slug,
       bio,
     };
     await store(storeData);

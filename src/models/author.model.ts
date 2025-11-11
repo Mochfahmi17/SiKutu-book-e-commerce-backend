@@ -6,6 +6,11 @@ const authorSchema = new Schema(
       type: String,
       required: true,
     },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     bio: {
       type: String,
       required: true,

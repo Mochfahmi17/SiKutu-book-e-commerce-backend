@@ -8,6 +8,7 @@ import connectDB from "./database/config/connectDB";
 import bookRouter from "./routes/book.route";
 import errorHandler from "./middleware/errorHandler";
 import authorRouter from "./routes/author.route";
+import categoryRouter from "./routes/category.route";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -26,9 +27,12 @@ app.get("/", (req: Request, res: Response) => {
   res.send(`Server is running at http://localhost:${port}`);
 });
 
+app.use("/uploads", express.static("uploads"));
+
 //* Endpoint API
 app.use("/api/books", bookRouter);
 app.use("/api/authors", authorRouter);
+app.use("/api/categories", categoryRouter);
 
 //* Global error handling
 app.use(errorHandler);
