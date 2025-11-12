@@ -53,7 +53,7 @@ export const getSingleBook = async (req: Request, res: Response, next: NextFunct
 export const addBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { title, description, category, author, price, stock } = req.body;
-    const uplodedCover = req.file?.filename;
+    const uplodedCover = req.file ? req.file.filename : undefined;
 
     const slug = await generateUniqueSlug(Book, title);
 
@@ -63,7 +63,7 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
       description,
       category,
       author,
-      uplodedCover,
+      coverBook: uplodedCover,
       price,
       stock,
     };
@@ -84,7 +84,7 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
   try {
     const { slug } = req.params;
     const { title, description, category, author, price, stock } = req.body;
-    const uplodedCover = req.file?.filename;
+    const uplodedCover = req.file ? req.file.filename : undefined;
 
     const book = await getBookBySlug(slug.toLowerCase());
     if (!book) {
