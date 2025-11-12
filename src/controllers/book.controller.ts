@@ -42,6 +42,8 @@ export const getSingleBook = async (req: Request, res: Response, next: NextFunct
     if (error instanceof Error) {
       return next(createHttpError(500, "Failed to fetch book!"));
     }
+
+    throw error;
   }
 };
 
