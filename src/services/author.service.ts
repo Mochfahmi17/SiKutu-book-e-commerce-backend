@@ -1,6 +1,6 @@
 import Author from "../models/author.model";
 
-type authorStorePRops = {
+type authorStoreProps = {
   name: string;
   slug: string;
   bio: string;
@@ -17,7 +17,7 @@ export const allAuthors = async () => {
   }
 };
 
-export const store = async ({ name, slug, bio, profileImage }: authorStorePRops) => {
+export const store = async ({ name, slug, bio, profileImage }: authorStoreProps) => {
   try {
     const author = await Author.create({
       name,

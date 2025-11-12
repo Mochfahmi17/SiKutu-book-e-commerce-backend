@@ -14,3 +14,5 @@ export const createBookSchema = z.object({
   stock: z.preprocess((val) => Number(val), z.number().nonnegative().default(0)),
   reviews: z.array(z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid review ObjectId format.")).optional(),
 });
+
+export const updateBookschema = createBookSchema.partial();
