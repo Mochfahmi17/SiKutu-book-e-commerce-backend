@@ -3,8 +3,6 @@ import createHttpError from "http-errors";
 import { allBooks, destroy, getBookBySlug, store, update } from "../services/book.service";
 import generateUniqueSlug from "../utils/genereateUniqueSlug";
 import Book from "../models/book.model";
-import path from "path";
-import { existsSync, unlinkSync } from "fs";
 import deleteOldImage from "../utils/deleteOldImage";
 
 export const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
