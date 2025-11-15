@@ -1,5 +1,5 @@
 import slugify from "slugify";
-import { Model, Document } from "mongoose";
+import { Model } from "mongoose";
 
 interface HasSlug {
   slug: string;

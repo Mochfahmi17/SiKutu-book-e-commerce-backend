@@ -74,28 +74,9 @@ export const store = async (data: bookStoreProps) => {
 
 export const update = async (data: updateBookProps) => {
   try {
-    const { oldSlug, category, author, ...fields } = data;
+    const { oldSlug, ...fields } = data;
 
-    const oldBook = await Book.findOne({ slug: oldSlug });
-    if (!oldBook) throw new Error("Book not found!");
-
-    const book = await Book.findOneAndUpdate({ slug: oldSlug }, { $set: { ...fields, category, author } }, { returnDocument: "after" });
-    if (!book) throw new Error("failed to update book.");
-
-    if (String(oldBook.author) !== String(author)) {
-      await Author.findByIdAndUpdate(oldBook.author, {
-        $pull: { books: book._id },
-      });
-
-      await Author.findByIdAndUpdate(author, {
-        $addToSet: { books: book._id },
-      });
-    }
-
-    if (String(oldBook.category) !== String(category)) {
-      await Category.findByIdAndUpdate(oldBook.category, { $pull: { books: book._id } });
-      await Category.findByIdAndUpdate(category, { $addToSet: { books: book._id } });
-    }
+    const book = await Book.findOneAndUpdate({ slug: oldSlug }, { $set: { ...fields } }, { returnDocument: "after" });
 
     return book;
   } catch (error) {
@@ -105,16 +86,9 @@ export const update = async (data: updateBookProps) => {
 
 export const destroy = async (slug: string) => {
   try {
-    const book = await Book.findOne({ slug });
-    if (!book) {
-      throw new Error("Book not found!");
-    }
+    const book = await Book.findOneAndDelete({ slug });
 
-    await Author.findByIdAndUpdate(book.author, {
-      $pull: { books: book._id },
-    });
-    await Category.findByIdAndUpdate(book.category, { $pull: { books: book._id } });
-    await Book.findOneAndDelete({ slug });
+    return book;
   } catch (error) {
     throw error;
   }

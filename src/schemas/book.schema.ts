@@ -5,7 +5,7 @@ export const createBookSchema = z.object({
   description: z.string().min(3, "Description too short."),
   category: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid category ObjectId format."),
   author: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid author ObjectId format."),
-  coverBook: z.file().mime(["image/jpeg", "image/png", "image/webp"]).max(2_000_000).optional(),
+  coverBook: z.union([z.file().mime(["image/jpeg", "image/png", "image/webp"]).max(2_000_000), z.undefined()]).optional(),
   price: z.preprocess((val) => Number(val), z.number().nonnegative()),
   discounts: z
     .string()

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { CallbackError, Schema } from "mongoose";
 
 const bookSchema = new Schema(
   {
@@ -27,6 +27,7 @@ const bookSchema = new Schema(
     },
     coverBook: {
       type: String,
+      default: null,
     },
     price: {
       type: Number,
@@ -35,6 +36,7 @@ const bookSchema = new Schema(
     discounts: {
       type: Schema.Types.ObjectId,
       ref: "Discount",
+      default: null,
     },
     stock: {
       type: Number,
@@ -44,6 +46,74 @@ const bookSchema = new Schema(
   },
   { timestamps: true }
 );
+
+bookSchema.pre("findOneAndUpdate", async function (next) {
+  try {
+    const rawUpdate = this.getUpdate();
+    if (!rawUpdate) return next();
+
+    if (Array.isArray(rawUpdate)) return next();
+    const update = rawUpdate as mongoose.UpdateQuery<mongoose.Document>;
+
+    const filter = this.getFilter();
+    const book = await this.model.findOne(filter);
+    if (!book) {
+      return next();
+    }
+
+    const newAuthor = update.$set.author;
+    const newCategory = update.$set.category;
+
+    if (newAuthor && String(newAuthor) !== String(book.author)) {
+      await mongoose.model("Author").findByIdAndUpdate(book.author, { $pull: { books: book._id } });
+      await mongoose.model("Author").findByIdAndUpdate(newAuthor, { $addToSet: { books: book._id } });
+    }
+
+    if (newCategory && String(newCategory) !== String(book.category)) {
+      await mongoose.model("Category").findByIdAndUpdate(book.category, { $pull: { books: book._id } });
+      await mongoose.model("Category").findByIdAndUpdate(newCategory, { $addToSet: { books: book._id } });
+    }
+
+    next();
+  } catch (error) {
+    next(error as CallbackError);
+  }
+});
+
+bookSchema.pre("findOneAndDelete", async function (next) {
+  try {
+    const filter = this.getFilter();
+
+    const book = await this.model.findOne(filter);
+    if (!book) {
+      return next();
+    }
+
+    await mongoose.model("Author").updateOne({ _id: book.author }, { $pull: { books: book._id } });
+    await mongoose.model("Category").updateOne({ _id: book.category }, { $pull: { books: book._id } });
+
+    next();
+  } catch (error) {
+    next(error as CallbackError);
+  }
+});
+
+bookSchema.pre("deleteMany", async function (next) {
+  try {
+    const filter = this.getFilter();
+
+    const books = await mongoose.model("Book").find(filter);
+
+    const reviewIds = books.flatMap((b) => b.reviews);
+    if (reviewIds.length > 0) {
+      await mongoose.model("Review").deleteMany({ _id: { $in: reviewIds } });
+    }
+
+    next();
+  } catch (error) {
+    next(error as CallbackError);
+  }
+});
 
 const Book = mongoose.model("Book", bookSchema);
 export default Book;
