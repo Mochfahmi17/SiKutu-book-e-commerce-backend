@@ -3,13 +3,17 @@ import Book from "../models/book.model";
 import Author from "../models/author.model";
 import Category from "../models/category.model";
 
+type allBooksProps = {
+  category?: string;
+};
+
 type bookStoreProps = {
   title: string;
   slug: string;
   description: string;
   category: Types.ObjectId;
   author: Types.ObjectId;
-  coverBook?: string;
+  coverBook?: string | null;
   price: number;
   discounts?: Types.ObjectId;
   stock: number;
@@ -23,16 +27,16 @@ type updateBookProps = {
   description: string;
   category: Types.ObjectId;
   author: Types.ObjectId;
-  coverBook?: string;
+  coverBook?: string | null;
   price: number;
   discounts?: Types.ObjectId;
   stock: number;
   reviews?: Types.ObjectId[];
 };
 
-export const allBooks = async () => {
+export const allBooks = async (filter: allBooksProps) => {
   try {
-    const books = await Book.find().sort({ createdAt: -1 }).populate("author", "-books").populate("category", "-books");
+    const books = await Book.find(filter).sort({ createdAt: -1 }).populate("author", "-books").populate("category", "-books");
 
     return books;
   } catch (error) {

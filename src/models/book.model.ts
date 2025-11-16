@@ -1,4 +1,5 @@
 import mongoose, { CallbackError, Schema } from "mongoose";
+import deleteOldImage from "../utils/deleteOldImage";
 
 const bookSchema = new Schema(
   {
@@ -104,9 +105,30 @@ bookSchema.pre("deleteMany", async function (next) {
 
     const books = await mongoose.model("Book").find(filter);
 
+    for (const book of books) {
+      const coverBook = book.coverBook;
+      if (coverBook) {
+        try {
+          deleteOldImage("cover", coverBook);
+        } catch (error) {
+          console.warn("Cover image not found or already deleted: ", error);
+        }
+      }
+    }
+
     const reviewIds = books.flatMap((b) => b.reviews);
     if (reviewIds.length > 0) {
       await mongoose.model("Review").deleteMany({ _id: { $in: reviewIds } });
+    }
+
+    const bookIds = books.map((b) => b._id);
+
+    if (bookIds.length > 0) {
+      await mongoose.model("Author").updateMany({ books: { $in: bookIds } }, { $pull: { books: { $in: bookIds } } });
+    }
+
+    if (bookIds.length > 0) {
+      await mongoose.model("Category").updateMany({ books: { $in: bookIds } }, { $pull: { books: { $in: bookIds } } });
     }
 
     next();

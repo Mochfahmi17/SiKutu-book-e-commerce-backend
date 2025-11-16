@@ -4,10 +4,27 @@ import { allBooks, destroy, getBookBySlug, store, update } from "../services/boo
 import generateUniqueSlug from "../utils/genereateUniqueSlug";
 import Book from "../models/book.model";
 import deleteOldImage from "../utils/deleteOldImage";
+import Category from "../models/category.model";
+import { Types } from "mongoose";
+import saveUploadedImage from "../utils/saveUplodedImage";
 
 export const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const books = await allBooks();
+    const { category } = req.query;
+
+    const filter: Record<string, Types.ObjectId> = {};
+
+    if (category) {
+      const categoryDoc = await Category.findOne({ slug: category });
+
+      if (!categoryDoc) {
+        return next(createHttpError(404, "Category not found"));
+      }
+
+      filter.category = categoryDoc._id;
+    }
+
+    const books = await allBooks(filter);
 
     return res.status(200).json({
       success: true,
@@ -51,9 +68,25 @@ export const getSingleBook = async (req: Request, res: Response, next: NextFunct
 export const addBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { title, description, category, author, price, stock } = req.body;
-    const uplodedCover = req.file ? req.file.filename : undefined;
+    const uplodedCover = req.file;
+
+    const allowedMime = ["image/jpeg", "image/png", "image/webp"];
+    const maxSize = 2 * 1024 * 1024;
 
     const slug = await generateUniqueSlug(Book, title);
+
+    let coverBookImage: string | null = null;
+    if (uplodedCover) {
+      if (!allowedMime.includes(uplodedCover.mimetype)) {
+        return next(createHttpError(400, "Only .jpeg, .png, or .webp files are allowed."));
+      }
+
+      if (uplodedCover.size >= maxSize) {
+        return next(createHttpError(400, "File size must be less than 2MB."));
+      }
+
+      coverBookImage = saveUploadedImage(uplodedCover, "cover");
+    }
 
     const storeData = {
       title,
@@ -61,13 +94,13 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
       description,
       category,
       author,
-      coverBook: uplodedCover,
+      coverBook: coverBookImage,
       price,
       stock,
     };
-    await store(storeData);
+    const newBook = await store(storeData);
 
-    return res.status(201).json({ sucess: true, error: false, message: "Add new book successfully." });
+    return res.status(201).json({ sucess: true, error: false, data: newBook, message: "Add new book successfully." });
   } catch (error) {
     console.error("Error add new book: ", error);
     if (error instanceof Error) {
@@ -81,8 +114,11 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
 export const updateBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params;
-    const { title, description, category, author, price, stock } = req.body;
-    const uplodedCover = req.file ? req.file.filename : undefined;
+    const { title, description, category, author, coverBook: coverBookBody, price, stock } = req.body;
+    const uplodedCover = req.file;
+
+    const allowedMime = ["image/jpeg", "image/png", "image/webp"];
+    const maxSize = 2 * 1024 * 1024;
 
     const book = await getBookBySlug(slug.toLowerCase());
     if (!book) {
@@ -91,10 +127,29 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
 
     const newSlug = title && title !== book.title ? await generateUniqueSlug(Book, title) : book.slug;
 
-    let newCoverBook = book.coverBook;
+    let newCoverBook: string | null = book.coverBook;
     if (uplodedCover) {
-      deleteOldImage("cover", book.coverBook);
-      newCoverBook = uplodedCover;
+      if (!allowedMime.includes(uplodedCover.mimetype)) {
+        return next(createHttpError(400, "Only .jpeg, .png, or .webp files are allowed."));
+      }
+
+      if (uplodedCover.size >= maxSize) {
+        return next(createHttpError(400, "File size must be less than 2MB."));
+      }
+
+      if (book.coverBook) {
+        deleteOldImage("cover", book.coverBook);
+      }
+
+      newCoverBook = saveUploadedImage(uplodedCover, "cover");
+    }
+
+    if (coverBookBody === "" || coverBookBody === null || coverBookBody === undefined) {
+      if (book.coverBook) {
+        deleteOldImage("cover", book.coverBook);
+      }
+
+      newCoverBook = null;
     }
 
     const updateData = {
@@ -104,7 +159,7 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
       description: description ?? book.description,
       category: category ?? book.category,
       author: author ?? book.author,
-      coverBook: newCoverBook ?? undefined,
+      coverBook: newCoverBook,
       price: price ?? book.price,
       stock: stock ?? book.stock,
     };
@@ -125,7 +180,7 @@ export const deleteBook = async (req: Request, res: Response, next: NextFunction
   try {
     const { slug } = req.params;
 
-    const book = await getBookBySlug(slug);
+    const book = await getBookBySlug(slug.toLowerCase());
     if (!book) {
       return next(createHttpError(404, "Book not found!"));
     }
@@ -133,7 +188,7 @@ export const deleteBook = async (req: Request, res: Response, next: NextFunction
     if (book.coverBook) {
       deleteOldImage("cover", book.coverBook);
     }
-    await destroy(slug);
+    await destroy(slug.toLowerCase());
 
     return res.status(200).json({
       success: true,

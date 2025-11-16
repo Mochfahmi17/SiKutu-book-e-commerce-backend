@@ -83,18 +83,17 @@ export const addAuthor = async (req: Request, res: Response, next: NextFunction)
       bio,
       profileImage,
     };
+    await store(storeData);
 
-    const author = await store(storeData);
-    console.log(author);
     return res.status(201).json({
       success: true,
       error: false,
-      message: "Successfully to add author.",
+      message: "Successfully to add new author.",
     });
   } catch (error) {
-    console.error(error);
+    console.error("Eddor add new author: ", error);
     if (error instanceof Error) {
-      return next(createHttpError(500, "Something went wrong!"));
+      return next(createHttpError(500, "Failed to add new author!"));
     }
 
     throw error;
@@ -149,12 +148,11 @@ export const updateAuthor = async (req: Request, res: Response, next: NextFuncti
       profileImage: newProfileImage,
     };
     const newAuthor = await update(updateData);
-    console.log(req.body);
 
     return res.status(200).json({
       success: true,
       error: false,
-      message: "Update author successfully!",
+      message: "Update author successfully.",
       data: newAuthor,
     });
   } catch (error) {
@@ -171,7 +169,7 @@ export const deleteAuthor = async (req: Request, res: Response, next: NextFuncti
   try {
     const { slug } = req.params;
 
-    const author = await getAuthorBySlug(slug);
+    const author = await getAuthorBySlug(slug.toLowerCase());
     if (!author) {
       return next(createHttpError(404, "Author not found."));
     }

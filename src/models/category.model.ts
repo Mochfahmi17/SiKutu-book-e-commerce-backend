@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { CallbackError, Schema } from "mongoose";
 
 const categorySchema = new Schema({
   name: {
@@ -16,6 +16,21 @@ const categorySchema = new Schema({
       ref: "Book",
     },
   ],
+});
+
+categorySchema.pre("findOneAndDelete", async function (next) {
+  try {
+    const query = this.getQuery();
+
+    const category = await this.model.findOne(query);
+    if (!category) return next();
+
+    await mongoose.model("Book").deleteMany({ category: category._id });
+
+    next();
+  } catch (error) {
+    next(error as CallbackError);
+  }
 });
 
 const Category = mongoose.model("Category", categorySchema);
