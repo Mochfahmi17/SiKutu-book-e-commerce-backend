@@ -101,7 +101,7 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
     const result = await Book.aggregate(pipeline);
 
     const data = result[0].data;
-    const total = result[0].totalCount[0]?.count || 0;
+    const total = result[0].totalCount[0].count || 0;
 
     return { data, pagination: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   } catch (error) {
