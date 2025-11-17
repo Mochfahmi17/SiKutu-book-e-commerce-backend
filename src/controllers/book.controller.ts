@@ -13,12 +13,13 @@ export const getAllBooks = async (req: Request, res: Response, next: NextFunctio
     const categorySlug = req.query.category as string | undefined;
     const search = req.query.search as string | undefined;
 
-    const books = await allBooks({ categorySlug, search, page, limit });
+    const { data, pagination } = await allBooks({ categorySlug, search, page, limit });
 
     return res.status(200).json({
       success: true,
       error: false,
-      data: books,
+      data,
+      pagination,
     });
   } catch (error) {
     console.error("Error fetching books: ", error);
