@@ -72,7 +72,7 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
     if (search) {
       const regex = new RegExp(search, "i");
 
-      pipeline.push({ $match: { $or: [{ title: { $regex: regex } }, { "author.name": { $regex: regex } }] } });
+      pipeline.push({ $match: { $or: [{ title: { $regex: regex } }, { "authorData.name": { $regex: regex } }] } });
     }
 
     pipeline.push({ $set: { category: "$categoryData", author: "$authorData" } });
@@ -85,8 +85,6 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
         "author.books": 0,
       },
     });
-
-    pipeline.push({ $sort: { createdAt: -1 } });
 
     //* Pagination
     const skip = (page - 1) * limit;
@@ -101,7 +99,7 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
     const result = await Book.aggregate(pipeline);
 
     const data = result[0].data;
-    const total = result[0].totalCount[0].count || 0;
+    const total = result[0].totalCount?.[0]?.count ?? 0;
 
     return { data, pagination: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   } catch (error) {
