@@ -94,7 +94,7 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
   } catch (error) {
     console.error("Error add new book: ", error);
     if (error instanceof Error) {
-      return next(createHttpError(500, "Failed to create new book!"));
+      return next(createHttpError(500, "Failed to create a new book!"));
     }
 
     throw error;
@@ -155,11 +155,11 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
     };
     await update(updateData);
 
-    return res.status(200).json({ success: true, error: false, message: "Update book successfully." });
+    return res.status(200).json({ success: true, error: false, message: "Book updated successfully." });
   } catch (error) {
-    console.error("Error update a book: ", error);
+    console.error("Error updating a book: ", error);
     if (error instanceof Error) {
-      return next(createHttpError(500, "Failed update book!"));
+      return next(createHttpError(500, "Failed to update a book!"));
     }
 
     throw error;
@@ -183,12 +183,12 @@ export const deleteBook = async (req: Request, res: Response, next: NextFunction
     return res.status(200).json({
       success: true,
       error: false,
-      message: "Delete book successfully!",
+      message: "Book deleted successfully!",
     });
   } catch (error) {
-    console.error("Error delete a book: ", error);
+    console.error("Error deleting a book: ", error);
     if (error instanceof Error) {
-      return next(createHttpError(500, "Failed delete book!"));
+      return next(createHttpError(500, "Failed to delete a book!"));
     }
 
     throw error;
