@@ -1,10 +1,13 @@
-import { Types } from "mongoose";
+import { PipelineStage, Types } from "mongoose";
 import Book from "../models/book.model";
 import Author from "../models/author.model";
 import Category from "../models/category.model";
 
 type allBooksProps = {
-  category?: string;
+  categorySlug?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
 };
 
 type bookStoreProps = {
@@ -34,9 +37,63 @@ type updateBookProps = {
   reviews?: Types.ObjectId[];
 };
 
-export const allBooks = async (filter: allBooksProps) => {
+export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: allBooksProps) => {
   try {
-    const books = await Book.find(filter).sort({ createdAt: -1 }).populate("author", "-books").populate("category", "-books");
+    const pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryData",
+        },
+      },
+      { $unwind: "$categoryData" }
+    );
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: "authors",
+          localField: "author",
+          foreignField: "_id",
+          as: "authorData",
+        },
+      },
+      { $unwind: "$authorData" }
+    );
+
+    if (categorySlug) {
+      pipeline.push({ $match: { "categoryData.slug": categorySlug } });
+    }
+
+    if (search) {
+      const regex = new RegExp(search, "i");
+
+      pipeline.push({ $match: { $or: [{ title: { $regex: regex } }, { "author.name": { $regex: regex } }] } });
+    }
+
+    pipeline.push({ $set: { category: "$categoryData", author: "$authorData" } });
+
+    pipeline.push({
+      $project: {
+        categoryData: 0,
+        authorData: 0,
+        "category.books": 0,
+        "author.books": 0,
+      },
+    });
+
+    pipeline.push({ $sort: { createdAt: -1 } });
+
+    //* Pagination
+    const skip = (page - 1) * limit;
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limit });
+
+    const books = Book.aggregate(pipeline);
 
     return books;
   } catch (error) {
