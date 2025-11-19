@@ -34,9 +34,13 @@ const bookSchema = new Schema(
       type: Number,
       required: true,
     },
+    discountPrice: {
+      type: Number,
+      default: null,
+    },
     discounts: {
       type: Schema.Types.ObjectId,
-      ref: "Discount",
+      ref: "Sale",
       default: null,
     },
     stock: {

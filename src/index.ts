@@ -9,6 +9,7 @@ import bookRouter from "./routes/book.route";
 import errorHandler from "./middleware/errorHandler";
 import authorRouter from "./routes/author.route";
 import categoryRouter from "./routes/category.route";
+import path from "node:path";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -27,7 +28,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send(`Server is running at http://localhost:${port}`);
 });
 
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 //* Endpoint API
 app.use("/api/books", bookRouter);

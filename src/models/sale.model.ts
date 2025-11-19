@@ -1,12 +1,21 @@
 import mongoose, { Schema } from "mongoose";
 
-const discountSchema = new Schema(
+const saleSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
     },
-    percentage: {
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    discountPercentage: {
       type: Number,
       required: true,
     },
@@ -34,5 +43,5 @@ const discountSchema = new Schema(
   }
 );
 
-const Discount = mongoose.model("Discount", discountSchema);
-export default Discount;
+const Sale = mongoose.model("Sale", saleSchema);
+export default Sale;
