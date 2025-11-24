@@ -16,10 +16,11 @@ type bookStoreProps = {
   description: string;
   category: Types.ObjectId;
   author: Types.ObjectId;
-  coverBook?: string | null;
+  coverBook?: string;
   price: number;
-  discounts?: Types.ObjectId;
+  sales?: Types.ObjectId;
   stock: number;
+  releaseDate: Date;
   reviews?: Types.ObjectId[];
 };
 
@@ -32,8 +33,9 @@ type updateBookProps = {
   author: Types.ObjectId;
   coverBook?: string | null;
   price: number;
-  discounts?: Types.ObjectId;
+  sales?: Types.ObjectId;
   stock: number;
+  releaseDate: Date;
   reviews?: Types.ObjectId[];
 };
 
@@ -65,6 +67,18 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
       { $unwind: "$authorData" }
     );
 
+    pipeline.push(
+      {
+        $lookup: {
+          from: "sales",
+          localField: "sales",
+          foreignField: "_id",
+          as: "discountData",
+        },
+      },
+      { $unwind: "$discountData" }
+    );
+
     if (categorySlug) {
       pipeline.push({ $match: { "categoryData.slug": categorySlug } });
     }
@@ -75,14 +89,16 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
       pipeline.push({ $match: { $or: [{ title: { $regex: regex } }, { "authorData.name": { $regex: regex } }] } });
     }
 
-    pipeline.push({ $set: { category: "$categoryData", author: "$authorData" } });
+    pipeline.push({ $set: { category: "$categoryData", author: "$authorData", sales: "$discountData" } });
 
     pipeline.push({
       $project: {
         categoryData: 0,
         authorData: 0,
+        discountData: 0,
         "category.books": 0,
         "author.books": 0,
+        "sales.books": 0,
       },
     });
 

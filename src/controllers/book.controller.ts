@@ -23,11 +23,7 @@ export const getAllBooks = async (req: Request, res: Response, next: NextFunctio
     });
   } catch (error) {
     console.error("Error fetching books: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed to fetch books!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed to fetch books!"));
   }
 };
 
@@ -47,17 +43,13 @@ export const getSingleBook = async (req: Request, res: Response, next: NextFunct
     });
   } catch (error) {
     console.error("Error fetching book: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed to fetch book!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed to fetch book!"));
   }
 };
 
 export const addBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, description, category, author, price, stock } = req.body;
+    const { title, description, category, author, price, stock, releaseDate } = req.body;
     const uplodedCover = req.file;
 
     const allowedMime = ["image/jpeg", "image/png", "image/webp"];
@@ -65,13 +57,13 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
 
     const slug = await generateUniqueSlug(Book, title);
 
-    let coverBookImage: string | null = null;
+    let coverBookImage: string | undefined = undefined;
     if (uplodedCover) {
       if (!allowedMime.includes(uplodedCover.mimetype)) {
         return next(createHttpError(400, "Only .jpeg, .png, or .webp files are allowed."));
       }
 
-      if (uplodedCover.size >= maxSize) {
+      if (uplodedCover.size > maxSize) {
         return next(createHttpError(400, "File size must be less than 2MB."));
       }
 
@@ -87,24 +79,21 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
       coverBook: coverBookImage,
       price,
       stock,
+      releaseDate,
     };
     const newBook = await store(storeData);
 
     return res.status(201).json({ sucess: true, error: false, data: newBook, message: "Add new book successfully." });
   } catch (error) {
     console.error("Error add new book: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed to create a new book!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed to create a new book!"));
   }
 };
 
 export const updateBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params;
-    const { title, description, category, author, coverBook: coverBookBody, price, stock } = req.body;
+    const { title, description, category, author, coverBook: coverBookBody, price, stock, releaseDate } = req.body;
     const uplodedCover = req.file;
 
     const allowedMime = ["image/jpeg", "image/png", "image/webp"];
@@ -117,13 +106,13 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
 
     const newSlug = title && title !== book.title ? await generateUniqueSlug(Book, title) : book.slug;
 
-    let newCoverBook: string | null = book.coverBook;
+    let newCoverBook: string | undefined | null = book.coverBook;
     if (uplodedCover) {
       if (!allowedMime.includes(uplodedCover.mimetype)) {
         return next(createHttpError(400, "Only .jpeg, .png, or .webp files are allowed."));
       }
 
-      if (uplodedCover.size >= maxSize) {
+      if (uplodedCover.size > maxSize) {
         return next(createHttpError(400, "File size must be less than 2MB."));
       }
 
@@ -139,7 +128,7 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
         deleteOldImage("cover", book.coverBook);
       }
 
-      newCoverBook = null;
+      newCoverBook = undefined;
     }
 
     const updateData = {
@@ -152,17 +141,14 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
       coverBook: newCoverBook,
       price: price ?? book.price,
       stock: stock ?? book.stock,
+      releaseDate: releaseDate ?? book.releaseDate,
     };
     await update(updateData);
 
     return res.status(200).json({ success: true, error: false, message: "Book updated successfully." });
   } catch (error) {
     console.error("Error updating a book: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed to update a book!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed to update a book!"));
   }
 };
 
@@ -187,10 +173,6 @@ export const deleteBook = async (req: Request, res: Response, next: NextFunction
     });
   } catch (error) {
     console.error("Error deleting a book: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed to delete a book!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed to delete a book!"));
   }
 };

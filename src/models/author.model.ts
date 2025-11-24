@@ -17,7 +17,6 @@ const authorSchema = new Schema(
     },
     profileImage: {
       type: String,
-      default: null,
     },
     books: [
       {

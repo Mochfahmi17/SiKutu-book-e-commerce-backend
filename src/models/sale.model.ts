@@ -11,6 +11,10 @@ const saleSchema = new Schema(
       required: true,
       unique: true,
     },
+    bannerImageSale: {
+      type: String,
+      required: true,
+    },
     description: {
       type: String,
       required: true,

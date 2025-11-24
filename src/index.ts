@@ -1,3 +1,4 @@
+import "./utils/saleScheduler";
 import express, { Request, Response } from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
@@ -10,6 +11,7 @@ import errorHandler from "./middleware/errorHandler";
 import authorRouter from "./routes/author.route";
 import categoryRouter from "./routes/category.route";
 import path from "node:path";
+import saleRouter from "./routes/sale.route";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -34,6 +36,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/books", bookRouter);
 app.use("/api/authors", authorRouter);
 app.use("/api/categories", categoryRouter);
+app.use("/api/sales", saleRouter);
 
 //* Global error handling
 app.use(errorHandler);

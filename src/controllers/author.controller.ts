@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import { allAuthors, destroy, getAuthorBySlug, store, update } from "../services/author.service";
 import generateUniqueSlug from "../utils/genereateUniqueSlug";
-import slugify from "slugify";
 import Author from "../models/author.model";
 import deleteOldImage from "../utils/deleteOldImage";
 import saveUploadedImage from "../utils/saveUplodedImage";
@@ -18,11 +17,7 @@ export const getAllAuthors = async (req: Request, res: Response, next: NextFunct
     });
   } catch (error) {
     console.error("Error fetching authors: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed to fetch author!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed to fetch author!"));
   }
 };
 
@@ -42,11 +37,7 @@ export const getSingleAuthor = async (req: Request, res: Response, next: NextFun
     });
   } catch (error) {
     console.error("Error fetching author: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed to fetch author!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed to fetch author!"));
   }
 };
 
@@ -58,19 +49,19 @@ export const addAuthor = async (req: Request, res: Response, next: NextFunction)
     const allowedMime = ["image/jpeg", "image/png", "image/webp"];
     const maxSize = 2 * 1024 * 1024;
 
-    const slug = slugify(name, { lower: true, strict: true });
+    const slug = await generateUniqueSlug(Author, name);
     const existing = await getAuthorBySlug(slug.toLowerCase());
     if (existing) {
       return next(createHttpError(409, "This author has already been added."));
     }
 
-    let profileImage: string | null = null;
+    let profileImage: string | undefined = undefined;
     if (uploadProfileImage) {
       if (!allowedMime.includes(uploadProfileImage.mimetype)) {
         return next(createHttpError(400, "Only .jpeg, .png, or .webp files are allowed."));
       }
 
-      if (uploadProfileImage.size >= maxSize) {
+      if (uploadProfileImage.size > maxSize) {
         return next(createHttpError(400, "File size must be less than 2MB."));
       }
 
@@ -92,11 +83,7 @@ export const addAuthor = async (req: Request, res: Response, next: NextFunction)
     });
   } catch (error) {
     console.error("Eddor add new author: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed to add new author!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed to add new author!"));
   }
 };
 
@@ -116,13 +103,13 @@ export const updateAuthor = async (req: Request, res: Response, next: NextFuncti
 
     const newSlug = name && name !== author.name ? await generateUniqueSlug(Author, name) : author.slug;
 
-    let newProfileImage: string | null = author.profileImage;
+    let newProfileImage: string | null | undefined = author.profileImage;
     if (uploadProfileImage) {
       if (!allowedMime.includes(uploadProfileImage.mimetype)) {
         return next(createHttpError(400, "Only .jpeg, .png, or .webp files are allowed."));
       }
 
-      if (uploadProfileImage.size >= maxSize) {
+      if (uploadProfileImage.size > maxSize) {
         return next(createHttpError(400, "File size must be less than 2MB."));
       }
 
@@ -137,7 +124,7 @@ export const updateAuthor = async (req: Request, res: Response, next: NextFuncti
         deleteOldImage("profile", author.profileImage);
       }
 
-      newProfileImage = null;
+      newProfileImage = undefined;
     }
 
     const updateData = {
@@ -157,11 +144,7 @@ export const updateAuthor = async (req: Request, res: Response, next: NextFuncti
     });
   } catch (error) {
     console.error("Error update a author: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed update author!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed update author!"));
   }
 };
 
@@ -187,10 +170,6 @@ export const deleteAuthor = async (req: Request, res: Response, next: NextFuncti
     });
   } catch (error) {
     console.error("Error delete a author: ", error);
-    if (error instanceof Error) {
-      return next(createHttpError(500, "Failed delete author!"));
-    }
-
-    throw error;
+    return next(createHttpError(500, "Failed delete author!"));
   }
 };

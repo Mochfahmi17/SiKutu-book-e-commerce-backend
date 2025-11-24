@@ -4,7 +4,7 @@ type authorStoreProps = {
   name: string;
   slug: string;
   bio: string;
-  profileImage?: string | null;
+  profileImage?: string;
 };
 
 type updateAuthorProps = {

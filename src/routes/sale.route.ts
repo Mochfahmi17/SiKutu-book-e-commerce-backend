@@ -1,0 +1,21 @@
+import express from "express";
+import { addSale, deleteSale, getAllSales, updateSale } from "../controllers/sale.controller";
+import validate from "../middleware/validate";
+import { createSaleSchema, updateSaleSchema } from "../schemas/sale.schema";
+import upload from "../middleware/multer";
+
+const saleRouter = express.Router();
+
+//*
+saleRouter.get("/", getAllSales);
+
+//* POST
+saleRouter.post("/create", upload.single("bannerImageSale"), validate(createSaleSchema), addSale);
+
+//* PUT
+saleRouter.put("/edit/:slug", upload.single("bannerImageSale"), validate(updateSaleSchema), updateSale);
+
+//* DELETE
+saleRouter.delete("/delete/:slug", deleteSale);
+
+export default saleRouter;

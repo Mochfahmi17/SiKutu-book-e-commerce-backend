@@ -28,7 +28,6 @@ const bookSchema = new Schema(
     },
     coverBook: {
       type: String,
-      default: null,
     },
     price: {
       type: Number,
@@ -36,16 +35,18 @@ const bookSchema = new Schema(
     },
     discountPrice: {
       type: Number,
-      default: null,
     },
-    discounts: {
+    sales: {
       type: Schema.Types.ObjectId,
       ref: "Sale",
-      default: null,
     },
     stock: {
       type: Number,
       default: 0,
+    },
+    releaseDate: {
+      type: Date,
+      required: true,
     },
     reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
   },
