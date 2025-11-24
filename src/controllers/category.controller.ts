@@ -99,7 +99,7 @@ export const deleteCategory = async (req: Request, res: Response, next: NextFunc
     }
 
     await destroy(slug);
-    return res.status(200).json({ success: true, error: false, message: "Delete category successfully!" });
+    return res.status(200).json({ success: true, error: false, message: "Delete category successfully." });
   } catch (error) {
     console.error("Error delete this category: ", error);
     return next(createHttpError(500, "Failed to delete category!"));

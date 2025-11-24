@@ -6,6 +6,7 @@ import { allSales, destroy, getSaleBySlug, store, syncSaleBooks, update } from "
 import Book from "../models/book.model";
 import saveUploadedImage from "../utils/saveUplodedImage";
 import deleteOldImage from "../utils/deleteOldImage";
+import { success } from "zod";
 
 export const getAllSales = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -19,6 +20,22 @@ export const getAllSales = async (req: Request, res: Response, next: NextFunctio
   } catch (error) {
     console.error("Error fetching sales: ", error);
     return next(createHttpError(500, "Failed to fetch sales!"));
+  }
+};
+
+export const getSingleSale = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { slug } = req.params;
+
+    const sale = await getSaleBySlug(slug.toLowerCase());
+    if (!sale) {
+      return next(createHttpError(404, "Sale not found!"));
+    }
+
+    return res.status(200).json({ success: true, error: false, data: sale });
+  } catch (error) {
+    console.error("Error fetch sale: ", error);
+    return next(createHttpError(500, "Failed to fetch sale!"));
   }
 };
 
@@ -177,6 +194,12 @@ export const deleteSale = async (req: Request, res: Response, next: NextFunction
     }
 
     await destroy(slug.toLowerCase());
+
+    return res.status(200).json({
+      success: true,
+      error: false,
+      message: "Sale deleted successfully.",
+    });
   } catch (error) {
     console.error("Error to deleting sale: ", error);
     return next(createHttpError(500, "Failed to delete sale!"));

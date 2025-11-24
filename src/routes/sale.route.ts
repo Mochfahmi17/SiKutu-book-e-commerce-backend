@@ -1,5 +1,5 @@
 import express from "express";
-import { addSale, deleteSale, getAllSales, updateSale } from "../controllers/sale.controller";
+import { addSale, deleteSale, getAllSales, getSingleSale, updateSale } from "../controllers/sale.controller";
 import validate from "../middleware/validate";
 import { createSaleSchema, updateSaleSchema } from "../schemas/sale.schema";
 import upload from "../middleware/multer";
@@ -8,6 +8,7 @@ const saleRouter = express.Router();
 
 //*
 saleRouter.get("/", getAllSales);
+saleRouter.get("/:slug", getSingleSale);
 
 //* POST
 saleRouter.post("/create", upload.single("bannerImageSale"), validate(createSaleSchema), addSale);

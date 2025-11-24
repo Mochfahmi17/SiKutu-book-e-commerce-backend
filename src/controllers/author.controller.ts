@@ -25,7 +25,7 @@ export const getSingleAuthor = async (req: Request, res: Response, next: NextFun
   try {
     const { slug } = req.params;
 
-    const author = await getAuthorBySlug(slug);
+    const author = await getAuthorBySlug(slug.toLowerCase());
     if (!author) {
       return next(createHttpError(404, "Author not found!"));
     }
@@ -166,7 +166,7 @@ export const deleteAuthor = async (req: Request, res: Response, next: NextFuncti
     return res.status(200).json({
       success: true,
       error: false,
-      message: "Delete author successfully!",
+      message: "Delete author successfully.",
     });
   } catch (error) {
     console.error("Error delete a author: ", error);
