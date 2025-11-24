@@ -6,7 +6,6 @@ import { allSales, destroy, getSaleBySlug, store, syncSaleBooks, update } from "
 import Book from "../models/book.model";
 import saveUploadedImage from "../utils/saveUplodedImage";
 import deleteOldImage from "../utils/deleteOldImage";
-import { success } from "zod";
 
 export const getAllSales = async (req: Request, res: Response, next: NextFunction) => {
   try {
