@@ -119,9 +119,9 @@ export const updateAuthor = async (req: Request, res: Response, next: NextFuncti
       newProfileImage = saveUploadedImage(uploadProfileImage, "profile");
     }
 
-    if (profileImageBody === "" || profileImageBody === null || profileImageBody === undefined) {
+    if (!uploadProfileImage && (profileImageBody === "" || profileImageBody === null || profileImageBody === undefined)) {
       if (author.profileImage) {
-        deleteOldImage("profile", author.profileImage);
+        newProfileImage = author.profileImage;
       }
 
       newProfileImage = undefined;

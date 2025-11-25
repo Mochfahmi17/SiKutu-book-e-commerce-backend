@@ -5,6 +5,8 @@ import generateUniqueSlug from "../utils/genereateUniqueSlug";
 import Book from "../models/book.model";
 import deleteOldImage from "../utils/deleteOldImage";
 import saveUploadedImage from "../utils/saveUplodedImage";
+import { getAuthorById } from "../services/author.service";
+import { getCategoryById } from "../services/category.service";
 
 export const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -70,6 +72,16 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
       coverBookImage = saveUploadedImage(uplodedCover, "cover");
     }
 
+    const existsCategory = await getCategoryById(category);
+    if (!existsCategory) {
+      return next(createHttpError(404, "Category not found!"));
+    }
+
+    const existsAuthor = await getAuthorById(author);
+    if (!existsAuthor) {
+      return next(createHttpError(404, "Author not found!"));
+    }
+
     const storeData = {
       title,
       slug,
@@ -123,12 +135,22 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
       newCoverBook = saveUploadedImage(uplodedCover, "cover");
     }
 
-    if (coverBookBody === "" || coverBookBody === null || coverBookBody === undefined) {
+    if (!uplodedCover && (coverBookBody === "" || coverBookBody === null || coverBookBody === undefined)) {
       if (book.coverBook) {
-        deleteOldImage("cover", book.coverBook);
+        newCoverBook = book.coverBook;
       }
 
       newCoverBook = undefined;
+    }
+
+    const existsCategory = await getCategoryById(category);
+    if (!existsCategory) {
+      return next(createHttpError(404, "Category not found!"));
+    }
+
+    const existsAuthor = await getAuthorById(author);
+    if (!existsAuthor) {
+      return next(createHttpError(404, "Author not found!"));
     }
 
     const updateData = {

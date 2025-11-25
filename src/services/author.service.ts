@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import Author from "../models/author.model";
 
 type authorStoreProps = {
@@ -20,6 +21,16 @@ export const allAuthors = async () => {
     const authors = await Author.find().populate({ path: "books", select: "-author", populate: { path: "category", select: "-books" } });
 
     return authors;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAuthorById = async (id: Types.ObjectId) => {
+  try {
+    const author = await Author.findById(id);
+
+    return author;
   } catch (error) {
     throw error;
   }

@@ -7,15 +7,16 @@ cron.schedule("*/1 * * * *", async () => {
     const now = new Date();
 
     const expiredSales = await Sale.find({ endDate: { $lte: now }, isActive: true });
-    if (expiredSales.length > 0) {
-      for (const sale of expiredSales) {
-        console.log("Nonactive sale: ", sale.name);
 
-        sale.isActive = false;
-        await sale.save();
+    if (expiredSales.length === 0) return;
 
-        await Book.updateMany({ discounts: sale._id }, { $unset: { discountPrice: "", discounts: "" } });
-      }
+    for (const sale of expiredSales) {
+      console.log("Nonactive sale: ", sale.name);
+
+      sale.isActive = false;
+      await sale.save();
+
+      await Book.updateMany({ discounts: sale._id }, { $unset: { discountPrice: "", discounts: "" } });
     }
   } catch (error) {
     console.error("Error on cron job: ", error);

@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import Category from "../models/category.model";
 
 type categoryStoreProps = {
@@ -16,6 +17,16 @@ export const allCategories = async () => {
     const categories = await Category.find().select("-books");
 
     return categories;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getCategoryById = async (id: Types.ObjectId) => {
+  try {
+    const category = await Category.findById(id);
+
+    return category;
   } catch (error) {
     throw error;
   }
