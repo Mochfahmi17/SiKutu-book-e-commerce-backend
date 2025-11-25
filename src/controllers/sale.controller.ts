@@ -63,7 +63,7 @@ export const addSale = async (req: Request, res: Response, next: NextFunction) =
       return next(createHttpError(400, "Banner image sale is required."));
     }
 
-    const allBooks = await Book.find({ _id: { $in: { books } } });
+    const allBooks = await Book.find({ _id: { $in: books } });
     for (const book of allBooks) {
       if (book.sales) {
         return next(createHttpError(400, `Book "${book.title}" already has a sale promo.`));
@@ -84,9 +84,7 @@ export const addSale = async (req: Request, res: Response, next: NextFunction) =
     const sale = await store(storeData);
 
     if (books && books.length > 0) {
-      const bookItems = await Book.find({ _id: { $in: books } });
-
-      for (const book of bookItems) {
+      for (const book of allBooks) {
         const discountPrice = Math.round(book.price - (book.price * discountPercentage) / 100);
 
         await Book.findByIdAndUpdate(book._id, { $set: { sales: sale._id, discountPrice } });
