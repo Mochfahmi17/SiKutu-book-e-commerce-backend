@@ -188,6 +188,8 @@ export const deleteSale = async (req: Request, res: Response, next: NextFunction
       return next(createHttpError(404, "Sale not found!"));
     }
 
+    deleteOldImage("banner", sale.bannerImageSale);
+
     if (sale.books && sale.books.length > 0) {
       await Book.updateMany({ _id: { $in: sale.books.map((book) => book._id) } }, { discountPrice: "", sales: "" });
     }
