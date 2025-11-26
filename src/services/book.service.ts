@@ -52,7 +52,7 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
           as: "categoryData",
         },
       },
-      { $unwind: "$categoryData" }
+      { $unwind: { path: "$categoryData", preserveNullAndEmptyArrays: true } }
     );
 
     pipeline.push(
@@ -64,7 +64,7 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
           as: "authorData",
         },
       },
-      { $unwind: "$authorData" }
+      { $unwind: { path: "$authorData", preserveNullAndEmptyArrays: true } }
     );
 
     pipeline.push(
@@ -76,7 +76,7 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
           as: "discountData",
         },
       },
-      { $unwind: "$discountData" }
+      { $unwind: { path: "$discountData", preserveNullAndEmptyArrays: true } }
     );
 
     if (categorySlug) {
