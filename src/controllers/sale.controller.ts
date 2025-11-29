@@ -2,10 +2,25 @@ import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import generateUniqueSlug from "../utils/genereateUniqueSlug";
 import Sale from "../models/sale.model";
-import { allSales, destroy, getSaleBySlug, store, syncSaleBooks, update } from "../services/sale.service";
+import { activeSales, allSales, destroy, getSaleBySlug, store, syncSaleBooks, update } from "../services/sale.service";
 import Book from "../models/book.model";
 import saveUploadedImage from "../utils/saveUplodedImage";
 import deleteOldImage from "../utils/deleteOldImage";
+
+export const getActiveSales = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const sales = await activeSales();
+
+    return res.status(200).json({
+      success: true,
+      error: false,
+      data: sales,
+    });
+  } catch (error) {
+    console.error("Error fetching sales: ", error);
+    return;
+  }
+};
 
 export const getAllSales = async (req: Request, res: Response, next: NextFunction) => {
   try {

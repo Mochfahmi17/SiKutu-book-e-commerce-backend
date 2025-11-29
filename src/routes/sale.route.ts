@@ -1,13 +1,14 @@
 import express from "express";
-import { addSale, deleteSale, getAllSales, getSingleSale, updateSale } from "../controllers/sale.controller";
+import { addSale, deleteSale, getActiveSales, getAllSales, getSingleSale, updateSale } from "../controllers/sale.controller";
 import validate from "../middleware/validate";
 import { createSaleSchema, updateSaleSchema } from "../schemas/sale.schema";
 import upload from "../middleware/multer";
 
 const saleRouter = express.Router();
 
-//*
+//* GET
 saleRouter.get("/", getAllSales);
+saleRouter.get("/active", getActiveSales);
 saleRouter.get("/:slug", getSingleSale);
 
 //* POST

@@ -56,6 +56,16 @@ export const getSaleBySlug = async (slug: string) => {
   }
 };
 
+export const activeSales = async () => {
+  try {
+    const sale = Sale.find({ isActive: true }).sort({ createdAt: -1 });
+
+    return sale;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const store = async (data: SaleStoreProps) => {
   try {
     const sale = await Sale.create(data);

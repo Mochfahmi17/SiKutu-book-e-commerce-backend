@@ -123,6 +123,16 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
   }
 };
 
+export const newReleaseBook = async (limit: number) => {
+  try {
+    const books = await Book.find().sort({ releaseDate: -1 }).limit(limit).populate("author", "-books").populate("category", "-books");
+
+    return books;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getBookBySlug = async (slug: string) => {
   try {
     const book = await Book.findOne({ slug }).populate("author", "-books").populate("category", "-books");

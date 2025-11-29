@@ -1,12 +1,13 @@
 import express from "express";
 import validate from "../middleware/validate";
 import { createBookSchema, updateBookschema } from "../schemas/book.schema";
-import { addBook, deleteBook, getAllBooks, getSingleBook, updateBook } from "../controllers/book.controller";
+import { addBook, deleteBook, getAllBooks, getNewReleases, getSingleBook, updateBook } from "../controllers/book.controller";
 import upload from "../middleware/multer";
 
 const bookRouter = express.Router();
 
 // GET
+bookRouter.get("/featured/new-releases", getNewReleases);
 bookRouter.get("/", getAllBooks);
 bookRouter.get("/:slug", getSingleBook);
 

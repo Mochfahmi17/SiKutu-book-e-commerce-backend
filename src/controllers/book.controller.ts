@@ -1,12 +1,32 @@
 import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
-import { allBooks, destroy, getBookBySlug, store, update } from "../services/book.service";
+import { allBooks, destroy, getBookBySlug, newReleaseBook, store, update } from "../services/book.service";
 import generateUniqueSlug from "../utils/genereateUniqueSlug";
 import Book from "../models/book.model";
 import deleteOldImage from "../utils/deleteOldImage";
 import saveUploadedImage from "../utils/saveUplodedImage";
 import { getAuthorById } from "../services/author.service";
 import { getCategoryById } from "../services/category.service";
+
+export const getNewReleases = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const limit = Number(req.query.limit) || 10;
+
+    const books = await newReleaseBook(limit);
+    if (!books) {
+      return next(createHttpError(404, "books not found!"));
+    }
+
+    return res.status(200).json({
+      success: true,
+      error: false,
+      data: books,
+    });
+  } catch (error) {
+    console.error("Error fetching books: ", error);
+    next(createHttpError(500, "Failed fetch a books!"));
+  }
+};
 
 export const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
   try {
