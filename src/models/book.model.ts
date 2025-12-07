@@ -44,6 +44,11 @@ const bookSchema = new Schema(
       type: Number,
       default: 0,
     },
+    pages: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
     language: {
       type: String,
       required: true,

@@ -20,6 +20,7 @@ type bookStoreProps = {
   price: number;
   sales?: Types.ObjectId;
   stock: number;
+  pages: number;
   language: string;
   releaseDate: Date;
   reviews?: Types.ObjectId[];
@@ -36,6 +37,7 @@ type updateBookProps = {
   price: number;
   sales?: Types.ObjectId;
   stock: number;
+  pages: number;
   language: string;
   releaseDate: Date;
   reviews?: Types.ObjectId[];

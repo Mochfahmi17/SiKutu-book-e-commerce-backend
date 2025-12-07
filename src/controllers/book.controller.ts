@@ -71,7 +71,7 @@ export const getSingleBook = async (req: Request, res: Response, next: NextFunct
 
 export const addBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, description, category, author, price, stock, language, releaseDate } = req.body;
+    const { title, description, category, author, price, stock, pages, language, releaseDate } = req.body;
     const uplodedCover = req.file;
 
     const allowedMime = ["image/jpeg", "image/png", "image/webp"];
@@ -111,6 +111,7 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
       coverBook: coverBookImage,
       price,
       stock,
+      pages,
       language,
       releaseDate,
     };
@@ -126,7 +127,7 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
 export const updateBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params;
-    const { title, description, category, author, coverBook: coverBookBody, price, stock, language, releaseDate } = req.body;
+    const { title, description, category, author, coverBook: coverBookBody, price, stock, pages, language, releaseDate } = req.body;
     const uplodedCover = req.file;
 
     const allowedMime = ["image/jpeg", "image/png", "image/webp"];
@@ -184,6 +185,7 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
       coverBook: newCoverBook,
       price: price ?? book.price,
       stock: stock ?? book.stock,
+      pages: pages ?? book.pages,
       language: language ?? book.language,
       releaseDate: releaseDate ?? book.releaseDate,
     };
