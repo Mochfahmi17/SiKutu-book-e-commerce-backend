@@ -71,7 +71,7 @@ export const getSingleBook = async (req: Request, res: Response, next: NextFunct
 
 export const addBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, description, category, author, price, stock, releaseDate } = req.body;
+    const { title, description, category, author, price, stock, language, releaseDate } = req.body;
     const uplodedCover = req.file;
 
     const allowedMime = ["image/jpeg", "image/png", "image/webp"];
@@ -111,6 +111,7 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
       coverBook: coverBookImage,
       price,
       stock,
+      language,
       releaseDate,
     };
     const newBook = await store(storeData);
@@ -125,7 +126,7 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
 export const updateBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params;
-    const { title, description, category, author, coverBook: coverBookBody, price, stock, releaseDate } = req.body;
+    const { title, description, category, author, coverBook: coverBookBody, price, stock, language, releaseDate } = req.body;
     const uplodedCover = req.file;
 
     const allowedMime = ["image/jpeg", "image/png", "image/webp"];
@@ -164,12 +165,12 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
     }
 
     const existsCategory = await getCategoryById(category);
-    if (!existsCategory) {
+    if (category && !existsCategory) {
       return next(createHttpError(404, "Category not found!"));
     }
 
     const existsAuthor = await getAuthorById(author);
-    if (!existsAuthor) {
+    if (author && !existsAuthor) {
       return next(createHttpError(404, "Author not found!"));
     }
 
@@ -178,11 +179,12 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
       title: title ?? book.title,
       slug: newSlug,
       description: description ?? book.description,
-      category: category ?? book.category,
+      category: category ?? book.category._id,
       author: author ?? book.author,
       coverBook: newCoverBook,
       price: price ?? book.price,
       stock: stock ?? book.stock,
+      language: language ?? book.language,
       releaseDate: releaseDate ?? book.releaseDate,
     };
     await update(updateData);

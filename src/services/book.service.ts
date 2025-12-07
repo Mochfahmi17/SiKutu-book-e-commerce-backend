@@ -20,6 +20,7 @@ type bookStoreProps = {
   price: number;
   sales?: Types.ObjectId;
   stock: number;
+  language: string;
   releaseDate: Date;
   reviews?: Types.ObjectId[];
 };
@@ -35,6 +36,7 @@ type updateBookProps = {
   price: number;
   sales?: Types.ObjectId;
   stock: number;
+  language: string;
   releaseDate: Date;
   reviews?: Types.ObjectId[];
 };
@@ -125,7 +127,7 @@ export const allBooks = async ({ categorySlug, search, page = 1, limit = 10 }: a
 
 export const newReleaseBook = async (limit: number) => {
   try {
-    const books = await Book.find().sort({ releaseDate: -1 }).limit(limit).populate("author", "-books").populate("category", "-books");
+    const books = await Book.find().sort({ releaseDate: -1 }).limit(limit).populate("author", "-books").populate("category", "-books").populate("sales", "-books");
 
     return books;
   } catch (error) {

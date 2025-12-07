@@ -1,5 +1,4 @@
 import z from "zod";
-import { issue } from "zod/v4/core/util.cjs";
 
 export const createBookSchema = z.object({
   title: z.string({ error: "Title is required." }).min(2, "Title too short."),
@@ -13,6 +12,7 @@ export const createBookSchema = z.object({
     .regex(/^[0-9a-fA-F]{24}$/, "Invalid discount ObjectId format.")
     .optional(),
   stock: z.preprocess((val) => Number(val), z.number().nonnegative().default(0)),
+  language: z.string({ error: "Language is required." }),
   releaseDate: z.coerce.date({ error: (issue) => (issue.input === undefined ? "Release Date is required." : "Invalid release date") }),
   reviews: z.array(z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid review ObjectId format.")).optional(),
 });
