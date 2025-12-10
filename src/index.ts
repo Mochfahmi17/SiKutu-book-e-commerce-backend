@@ -12,6 +12,8 @@ import authorRouter from "./routes/author.route";
 import categoryRouter from "./routes/category.route";
 import path from "node:path";
 import saleRouter from "./routes/sale.route";
+import authRouter from "./routes/auth.route";
+import userRouter from "./routes/user.route";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -33,10 +35,12 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 //* Endpoint API
+app.use("/api/auth", authRouter);
 app.use("/api/books", bookRouter);
 app.use("/api/authors", authorRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/sales", saleRouter);
+app.use("/api/user", userRouter);
 
 //* Global error handling
 app.use(errorHandler);

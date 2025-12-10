@@ -82,7 +82,7 @@ export const addAuthor = async (req: Request, res: Response, next: NextFunction)
       message: "Successfully to add new author.",
     });
   } catch (error) {
-    console.error("Eddor add new author: ", error);
+    console.error("Error add new author: ", error);
     return next(createHttpError(500, "Failed to add new author!"));
   }
 };
